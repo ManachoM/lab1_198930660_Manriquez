@@ -21,7 +21,7 @@
 
 ;; Funcion de pertenencia de personajes
 ;; Dominio: cualquier cosa
-;; Recorrido: booleano
+;; Recorrido: boolean
 (define (personaje? p) (
                         if(and
                           (> (car p) -1)
@@ -96,4 +96,18 @@
   )
 
 
-  
+;; Funcion que determina si todos los elementos de una lista son personajes
+;; Dominio: lista
+;; Recorrido: boolean
+;; Recursion: natural
+(define (sonPersonaje p) (
+                          if(null? p)
+                            #t
+                            (if(personaje? (car p))
+                               (sonPersonaje (cdr p))
+                               #f)
+                            )
+  )
+(provide sonPersonaje)
+(provide personaje)
+(provide personaje?)
