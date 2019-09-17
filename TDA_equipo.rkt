@@ -62,4 +62,9 @@
   )
 
 
-
+(provide equipo)
+(provide equipo?)
+(provide getFlequipo)
+(provide getPequipo)
+(provide setFlequipo)
+(provide setPequipo)
