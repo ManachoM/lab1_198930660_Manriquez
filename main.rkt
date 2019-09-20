@@ -70,10 +70,24 @@
 ;; Funcion que entrega todas las coordenadas X de personajes en un equipo
 ;; Dominio: lista de personajes X lista de enteros
 ;; Recorrido: lista de enteros
+;; Recursion: de cola
 (define (getAllX eq list) (
                            if(empty? eq)
                              list
                              (getAllX (cdr eq) (addLast (getXpersonaje (car eq)) list))
                              )
   )
-                           
+
+;; Funcion que verifica si se repite algun elemento en una lista
+;; Dominio: lista
+;; Recorrido: boolean
+;; Recursion: natural o lineal?
+(define (seRepite lista) (
+                          if(empty? lista)
+                          #f
+                          (if(boolean? (member (car lista) (cdr lista)))
+                             (seRepite (cdr lista))
+                             #t
+                             )
+                          )
+  )
