@@ -54,3 +54,26 @@
                                       null
                                       )
   )
+
+;; Funcion que agrega un elemento al final de una lista
+;; Dominio: elemento X lista
+;; Recorrido: lista
+;; Recursion: natural o lineal
+(define (addLast l list) (
+                          if(empty? list)
+                            (cons l null)
+                            (cons (car list) (addLast l (cdr list)))
+                            )
+  )
+
+
+;; Funcion que entrega todas las coordenadas X de personajes en un equipo
+;; Dominio: lista de personajes X lista de enteros
+;; Recorrido: lista de enteros
+(define (getAllX eq list) (
+                           if(empty? eq)
+                             list
+                             (getAllX (cdr eq) (addLast (getXpersonaje (car eq)) list))
+                             )
+  )
+                           
