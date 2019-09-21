@@ -4,10 +4,25 @@
 (require "TDA_equipo.rkt")
 (require "TDA_escena.rkt")
 
+
+
+
+;; Funcion que retorna el enesimo elemento de una lista
+;; Dominio: entero X lista
+;; Recorrido: elemento
+;; Recursion: de cola, no es necesario dejar estados pendientes
+(define (nth n l)
+  (if (or (> n (length l)) (< n 0))
+    (error "Index out of bounds.")
+    (if (eq? n 0)
+      (car l)
+      (nth (- n 1) (cdr l)))))
+
+
 ;; Funcion que inicializa lista de personajes del jugador para el desarrollo de una partida
 ;; Dominio: entero X entero X entero
 ;; Recorrido: lista de personajes
-;; Recursion: natural o lineal
+;; Recursion: natural o lineal, intuitiva, facil de implementar
 (define (initListaP1 cant fila col) (
                                        if(= cant 1)
                                          (cons (personaje cant col 1) null)
@@ -28,7 +43,7 @@
 ;; Funcion que inicializa lista de personajes del computador para el desarrollo de una partida
 ;; Dominio: entero X entero X entero
 ;; Recorrido: lista de personajes
-;; Recursion: natural o lineal
+;; Recursion: natural o lineal, facilidad de implementacion
 (define (initListaP2 ini fila col) (
                                        if(= ini col)
                                          (cons (personaje ini fila 1) null)
@@ -58,7 +73,7 @@
 ;; Funcion que agrega un elemento al final de una lista
 ;; Dominio: elemento X lista
 ;; Recorrido: lista
-;; Recursion: natural o lineal
+;; Recursion: natural o lineal, facilidad de implementacion
 (define (addLast l list) (
                           if(empty? list)
                             (cons l null)
@@ -70,7 +85,7 @@
 ;; Funcion que entrega todas las coordenadas X de personajes en un equipo
 ;; Dominio: lista de personajes X lista de enteros
 ;; Recorrido: lista de enteros
-;; Recursion: de cola
+;; Recursion: de cola, permite desarrollo versatil de la funcion. Permitira entregar una lista con elementos ya conocidos para seguir agregandole valores
 (define (getAllX eq list) (
                            if(empty? eq)
                              list
@@ -81,7 +96,7 @@
 ;; Funcion que verifica si se repite algun elemento en una lista
 ;; Dominio: lista
 ;; Recorrido: boolean
-;; Recursion: de cola, no deja estados pendientes
+;; Recursion: de cola, no deja estados pendientes. Permite avanzar por la lista de entrada sin procuparse por la cantidad de argumentos
 (define (seRepite lista) (
                           if(empty? lista)
                           #f
@@ -99,7 +114,7 @@
                             if(escena? scene);; Al preguntar si es escena verificamos que las dimensiones sean coherentes y los tipos de dato tambien
                                (if(and (or (eqv? (getEstescena scene) "PLAYING") (eqv? (getEstescena scene) "VICTORY") (eqv? (getEstescena scene) "DEFEAT") (eqv? (getEstescena scene) "DRAW"));; Luego verificamos si el estado del escenario es valido
                                        (>= (getMescena scene) (+ (length (getPequipo (getEq1escena scene))) (length (getPequipo (getEq2escena scene)))));; Vemos si las dimensiones son suficientes para contener a todos los personajes
-                                       (not (seRepite (getAllX (getPequipo (getEq1escena scene)) (getAllX (getPequipo (getEq2escena scene)) '()))));; Vemos si hay posiciones repetidas
+                                       (not (seRepite (getAllX (getPequipo (getEq1escena scene)) (getAllX (getPequipo (getEq2escena scene)) '()))));; Vemos si hay posiciones repetidas. Se verifican solo los valores X porque se generan los personajes en una fila india
                                       )
                                   #t
                                   #f
@@ -107,3 +122,10 @@
                                #f
                                )
   )
+
+;; Funcion que permite realizar una jugada, que consiste en mover un miembro del equipo, setear un angulo y disparar
+;; Luego, el computador dispara de vuelta y se verifica el estado de la partida
+;; Dominio: escena X entero X entero X funcion X entero X entero
+;; Recorrido: escena
+(define (play scene member move tf angle seed) (
+                                                
