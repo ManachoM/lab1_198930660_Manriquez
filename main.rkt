@@ -10,8 +10,8 @@
 ;; Recursion: natural o lineal
 (define (initListaP1 cant fila col) (
                                        if(= cant 1)
-                                         (cons (personaje fila cant 1) null)
-                                         (cons (personaje fila col 1) (initListaP1 (- cant 1) fila (- col 1)))
+                                         (cons (personaje cant col 1) null)
+                                         (cons (personaje col fila 1) (initListaP1 (- cant 1)  (- col 1) fila))
                                          )
   )
 
@@ -31,8 +31,8 @@
 ;; Recursion: natural o lineal
 (define (initListaP2 ini fila col) (
                                        if(= ini col)
-                                         (cons (personaje fila ini 1) null)
-                                         (cons (personaje fila ini 1) (initListaP2 (+ ini 1) fila col))
+                                         (cons (personaje ini fila 1) null)
+                                         (cons (personaje ini fila 1) (initListaP2 (+ ini 1) fila col))
                                          )
   )
 
@@ -81,7 +81,7 @@
 ;; Funcion que verifica si se repite algun elemento en una lista
 ;; Dominio: lista
 ;; Recorrido: boolean
-;; Recursion: natural o lineal?
+;; Recursion: de cola, no deja estados pendientes
 (define (seRepite lista) (
                           if(empty? lista)
                           #f
@@ -90,4 +90,20 @@
                              #t
                              )
                           )
+  )
+
+;; Funcion que verifica que un escenario sea valido para el desarrollo de una partida
+;; Dominio: escena
+;; Recorrido: boolean
+(define (checkScene scene) (
+                            if(escena? scene);; Al preguntar si es escena verificamos que las dimensiones sean coherentes y los tipos de dato tambien
+                               (if(and (or (eqv? (getEstescena scene) "PLAYING") (eqv? (getEstescena scene) "VICTORY") (eqv? (getEstescena scene) "DEFEAT") (eqv? (getEstescena scene) "DRAW"));; Luego verificamos si el estado del escenario es valido
+                                       (>= (getMescena scene) (+ (length (getPequipo (getEq1escena scene))) (length (getPequipo (getEq2escena scene)))));; Vemos si las dimensiones son suficientes para contener a todos los personajes
+                                       (not (seRepite (getAllX (getPequipo (getEq1escena scene)) (getAllX (getPequipo (getEq2escena scene)) '()))));; Vemos si hay posiciones repetidas
+                                      )
+                                  #t
+                                  #f
+                                  )
+                               #f
+                               )
   )
