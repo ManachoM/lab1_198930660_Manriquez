@@ -123,9 +123,25 @@
                                )
   )
 
+;; Funcion que mueve un personaje de una lista en el eje X
+;; Dominio: lista de personajes X entero X entero
+;; Recorrido: lista de personajes
+(define (moveP eq n m) (
+                        if(null? eq)
+                          eq
+                          (cons
+                           (if(zero? n)
+                              (setXpersonaje (car eq) (+ (getXpersonaje (car eq)) m))
+                              (car eq))
+                           (moveP (cdr eq) (- n 1) m)
+                           )
+                          )
+  )
+                              
+
 ;; Funcion que permite realizar una jugada, que consiste en mover un miembro del equipo, setear un angulo y disparar
 ;; Luego, el computador dispara de vuelta y se verifica el estado de la partida
 ;; Dominio: escena X entero X entero X funcion X entero X entero
 ;; Recorrido: escena
-(define (play scene member move tf angle seed) (
+;;(define (play scene member move tf angle seed) (
                                                 
