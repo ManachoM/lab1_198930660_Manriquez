@@ -137,11 +137,50 @@
                            )
                           )
   )
-                              
+
+;; Funcion que describe trayectoria de un proyectil
+;; Dominio: entero X entero X entero X entero
+;; Recorrido: lista de numeros
+(define (shoot1 angle x y M)
+                              (define (generarLista1 n y) (if(zero? n)
+                                                          (cons (+ n y) null)
+                                                          (cons (+ n y) (generarLista1 (- n 1) y))
+                                                          )
+                                )
+                              (define (generarLista2 n y) (if(zero? n)
+                                                             (cons y null)
+                                                             (cons y (generarLista2 (- n 1) y))
+                                                             )
+                                )
+                              (define (generarLista3 n y) (if(zero? n)
+                                                             (cons y null)
+                                                             (cons y (generarLista3 (- n 1) (+ y 1)))
+                                                             )
+                                )
+  (
+                              if(and (number? angle) (number? x) (number? y) (number? M) (< 0 x) (< 0 y) (< 0 M) (< -1 angle))
+                                (cond ((= (quotient angle 45) 1) (reverse (generarLista1 (- M x) y)))
+                                      ((= (quotient angle 45) 0) (generarLista2 (- M x) y))
+                                      ((= (quotient angle 45) 2) (cons (generarLista3 (- M x) y) null))
+                                      ((= (quotient angle 45) 3) (generarLista1 x y))
+                                      ((= (quotient angle 45) 4) (generarLista2 x y))
+                                      (else '())
+                                      )
+                                '()
+                                )
+  )
 
 ;; Funcion que permite realizar una jugada, que consiste en mover un miembro del equipo, setear un angulo y disparar
 ;; Luego, el computador dispara de vuelta y se verifica el estado de la partida
 ;; Dominio: escena X entero X entero X funcion X entero X entero
 ;; Recorrido: escena
-;;(define (play scene member move tf angle seed) (
+(define (play scene) (
+                      lambda (member) (
+                                     lambda (move) (
+                                                  lambda (move) (
+                                                                 lambda (tf) (
+                                                                              lambda (angle) (
+                                                                                              lambda (seed) (
+                                                                                                             
+                                                                               
                                                 
