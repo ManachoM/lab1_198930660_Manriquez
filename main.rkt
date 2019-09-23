@@ -170,6 +170,18 @@
                                 )
   )
 
+;; Funcion que determina si un personaje esta en el camino de la trayectoria
+;; Dominio: lista de enteros X lista de personajes X entero
+;; Recorrido: lista de personajes
+(define (chocarProyectil tr eq x) (define (aux tr eq x n) (
+                                                           if(> n (length eq))
+                                                             eq
+                                                             (if(getX
+                                    (
+                                     if(empty? tr)
+                                       eq
+                                       (
+
 ;; Funcion que permite realizar una jugada, que consiste en mover un miembro del equipo, setear un angulo y disparar
 ;; Luego, el computador dispara de vuelta y se verifica el estado de la partida
 ;; Dominio: escena X entero X entero X funcion X entero X entero
@@ -181,6 +193,7 @@
                                                                  lambda (tf) (
                                                                               lambda (angle) (
                                                                                               lambda (seed) (
+                                                                                                             #T))))))))
                                                                                                              
                                                                                
                                                 
