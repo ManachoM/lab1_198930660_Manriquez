@@ -138,9 +138,26 @@
                           )
   )
 
+;; Funcion que modifica la vida de un personaje en una lista
+;; Dominio: lista de personajes X entero
+;; Recorrido: lista de personajes
+;; Recursion: natural, es facil de implementar
+(define (hitP1 eq n) (
+                     if(null? eq)
+                       eq
+                       (cons
+                        (if(zero? n)
+                           (setVidapersonaje (car eq) 0)
+                           (car eq))
+                        (hitP1 (cdr eq) (- n 1))
+                            )
+                       )
+  )
+
 ;; Funcion que describe trayectoria de un proyectil
 ;; Dominio: entero X entero X entero X entero
 ;; Recorrido: lista de numeros
+;; Recursion: natural, facil de programar para generar las listas de trayectorias
 (define (shoot1 angle x y M)
                               (define (generarLista1 n y) (if(zero? n)
                                                           (cons (+ n y) null)
@@ -173,14 +190,43 @@
 ;; Funcion que determina si un personaje esta en el camino de la trayectoria
 ;; Dominio: lista de enteros X lista de personajes X entero
 ;; Recorrido: lista de personajes
-(define (chocarProyectil tr eq x) (define (aux tr eq x n) (
+(define (chocarProyectil tr eq x angle) (define (aux1 member tr x angle) (
+                                                                          cond [(< (quotient angle 45) 2) (if(< (- (getXpersonaje member) x) (length tr))
+                                                                                                 (if(= (nth (- (getXpersonaje member) x) tr) (getYpersonaje member))
+                                                                                                  #t
+                                                                                                  #f
+                                                                                              )
+                                                                                               #f)]
+                                                                                [(> (quotient angle 45) 2) (if(< (- x (getXpersonaje member)) (length tr))
+                                                                                                     (if(= (nth (- x (getXpersonaje member)) tr) (getYpersonaje member))
+                                                                                                        #t
+                                                                                                        #f
+                                                                                                        )
+                                                                                                    #f )]
+                                                                                [(= (quotient angle 45) 90) #f]
+                                                                                )
+                                                                          )
+                                     (define (aux2 tr eq x n angle) (
                                                            if(> n (length eq))
-                                                             eq
-                                                             (if(getX
+                                                             -1
+                                                             (if (aux1 (nth n eq) tr x angle)
+                                                                 n
+                                                                 (aux2 tr eq x (+ n 1) angle)
+                                                                 )
+                                                             )
+                                        )
                                     (
                                      if(empty? tr)
                                        eq
-                                       (
+                                       (if(>(aux2 tr eq x 0 angle) -1)
+                                          (hitP1 eq (aux2 tr eq x 0 angle))
+                                          eq
+                                          )
+                                       )
+  )
+  
+                                    
+;;  (chocarProyectil (shoot1 181 2 2 5) (list (personaje 1 2 1) (personaje 3 2 1) (personaje 4 2 1)) 2 181)
 
 ;; Funcion que permite realizar una jugada, que consiste en mover un miembro del equipo, setear un angulo y disparar
 ;; Luego, el computador dispara de vuelta y se verifica el estado de la partida
@@ -188,12 +234,14 @@
 ;; Recorrido: escena
 (define (play scene) (
                       lambda (member) (
-                                     lambda (move) (
-                                                  lambda (move) (
-                                                                 lambda (tf) (
-                                                                              lambda (angle) (
-                                                                                              lambda (seed) (
-                                                                                                             #T))))))))
+                                       lambda (move) (
+                                                      lambda (move) (
+                                                                     lambda (tf) (
+                                                                                  lambda (angle) (
+                                                                                                  lambda (seed) (
+                                                                                                                 #T))))))))
                                                                                                              
                                                                                
-                                                
+
+
+                            
