@@ -209,7 +209,7 @@
                                      (define (aux2 tr eq x n angle) (
                                                                      if(= (quotient angle 45) 2)
                                                                        -1
-                                                                       (if(> n (length eq))
+                                                                       (if(or (>= n (length eq)) (>= n (length tr)))
                                                                        -1
                                                                        (if(aux1 (nth n eq) tr x angle)
                                                                           n
@@ -229,7 +229,33 @@
   )
   
                                     
-  (chocarProyectil (shoot1 181 2 2 5) (list (personaje 1 2 1) (personaje 3 2 1) (personaje 4 2 1)) 2 181)
+;;  (chocarProyectil (shoot1 46 2 2 5) (list (personaje 1 2 1) (personaje 3 2 1) (personaje 4 2 1)) 2 46)
+
+;; Función que determina cuántos personajes de una lista quedan con vida
+;; Dominio: lista de personajes
+;; Recorrido: boolean
+;; Recursión: de cola, no es necesario dejar estados pendientes
+(define (quedanVivos eq) (
+                           if(empty? eq)
+                             #f
+                             (if(= (getVidapersonaje (car eq)) 1)
+                                #t
+                                (quedanVivos (cdr eq))
+                                )
+                             )
+  )
+
+;; Función que determina el estado de juego con dos equipos dados
+;; Dominio:equipo X equipo
+;; Recorrido: string
+(define (checkState eq1 eq2) (
+                              cond [(and (quedanVivos (getPequipo eq1)) (quedanVivos (getPequipo eq2))) "PLAYING"]
+                                   [(and (quedanVivos (getPequipo eq1)) (not (quedanVivos (getPequipo eq2)))) "VICTORY"]
+                                   [(and (not (quedanVivos (getPequipo eq1))) (quedanVivos (getPequipo eq2))) "DEFEAT"]
+                                   [(and (not (quedanVivos (getPequipo eq1))) (not (quedanVivos (getPequipo eq2)))) "DRAW"]
+                                   )
+  )
+
 
 ;; Funcion que permite realizar una jugada, que consiste en mover un miembro del equipo, setear un angulo y disparar
 ;; Luego, el computador dispara de vuelta y se verifica el estado de la partida
