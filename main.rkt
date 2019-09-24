@@ -177,7 +177,7 @@
   (
                               if(and (number? angle) (number? x) (number? y) (number? M) (< 0 x) (< 0 y) (< 0 M) (< -1 angle))
                                 (cond ((= (quotient angle 45) 1) (reverse (generarLista1 (- M x) y)))
-                                      ((= (quotient angle 45) 0) (generarLista2 (- M x) y))
+                                      ((or (= (quotient angle 45) 0)  (= (quotient angle 45) 8)) (generarLista2 (- M x) y))
                                       ((= (quotient angle 45) 2) (cons (generarLista3 (- M x) y) null))
                                       ((= (quotient angle 45) 3) (generarLista1 x y))
                                       ((= (quotient angle 45) 4) (generarLista2 x y))
@@ -191,34 +191,37 @@
 ;; Dominio: lista de enteros X lista de personajes X entero
 ;; Recorrido: lista de personajes
 (define (chocarProyectil tr eq x angle) (define (aux1 member tr x angle) (
-                                                                          cond [(< (quotient angle 45) 2) (if(< (- (getXpersonaje member) x) (length tr))
+                                                                          cond [(or (< (quotient angle 45) 2) (= (quotient angle 45) 8)) (if(and (> (- (getXpersonaje member) x) -1) (< (- (getXpersonaje member) x) (length tr)))
                                                                                                  (if(= (nth (- (getXpersonaje member) x) tr) (getYpersonaje member))
                                                                                                   #t
                                                                                                   #f
                                                                                               )
                                                                                                #f)]
-                                                                                [(> (quotient angle 45) 2) (if(< (- x (getXpersonaje member)) (length tr))
+                                                                                [(> (quotient angle 45) 2) (if(and (> (- x (getXpersonaje member)) -1) (< (- x (getXpersonaje member)) (length tr)))
                                                                                                      (if(= (nth (- x (getXpersonaje member)) tr) (getYpersonaje member))
                                                                                                         #t
                                                                                                         #f
                                                                                                         )
-                                                                                                    #f )]
-                                                                                [(= (quotient angle 45) 90) #f]
+                                                                                                    #f)]
+                                                                                [(= (quotient angle 45) 2) #f]
                                                                                 )
                                                                           )
                                      (define (aux2 tr eq x n angle) (
-                                                           if(> n (length eq))
-                                                             -1
-                                                             (if (aux1 (nth n eq) tr x angle)
-                                                                 n
-                                                                 (aux2 tr eq x (+ n 1) angle)
-                                                                 )
-                                                             )
+                                                                     if(= (quotient angle 45) 2)
+                                                                       -1
+                                                                       (if(> n (length eq))
+                                                                       -1
+                                                                       (if(aux1 (nth n eq) tr x angle)
+                                                                          n
+                                                                          (aux2 tr eq x (+ n 1) angle)
+                                                                          )
+                                                                       )
                                         )
+                                       )
                                     (
                                      if(empty? tr)
                                        eq
-                                       (if(>(aux2 tr eq x 0 angle) -1)
+                                       (if(> (aux2 tr eq x 0 angle) -1)
                                           (hitP1 eq (aux2 tr eq x 0 angle))
                                           eq
                                           )
@@ -226,7 +229,7 @@
   )
   
                                     
-;;  (chocarProyectil (shoot1 181 2 2 5) (list (personaje 1 2 1) (personaje 3 2 1) (personaje 4 2 1)) 2 181)
+  (chocarProyectil (shoot1 181 2 2 5) (list (personaje 1 2 1) (personaje 3 2 1) (personaje 4 2 1)) 2 181)
 
 ;; Funcion que permite realizar una jugada, que consiste en mover un miembro del equipo, setear un angulo y disparar
 ;; Luego, el computador dispara de vuelta y se verifica el estado de la partida
