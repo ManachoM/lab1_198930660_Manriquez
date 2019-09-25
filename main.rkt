@@ -298,7 +298,7 @@
                                                                                                                          (chocarProyectil
                                                                                                                           (tf angle (+ (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) move) (getYpersonaje (nth member (getPequipo (getEq1escena scene)))) (getMescena scene))
                                                                                                                           (getPequipo (getEq2escena scene))
-                                                                                                                          (getXpersonaje (nth member (getPequipo (getEq1escena scene))))
+                                                                                                                          (+ (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) move)
                                                                                                                           angle
                                                                                                                           )   
                                                                                                                          )
@@ -332,7 +332,8 @@
                        )
   )
   
-                                                                                                             
+
+(define S1 '(10 10 "PLAYING" ("Jugador" (3 1 1) (2 1 1) (1 1 1)) ("CPU" (10 1 1))))
                                                                                
 
 
