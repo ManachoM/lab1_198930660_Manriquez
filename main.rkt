@@ -64,7 +64,7 @@
 ;; Recorrido: escena
 (define (createScene N M E D seed) (
                                     if(and (number? N) (> N 0) (number? M) (> M 0) (number? E) (> E 0) (number? D) (> D 0) (number? seed) (> seed 0)) ;(>= N seed);)
-                                      (escena N M "PLAYING" (initEquipoJ "Jugador" 3 (modulo seed N) 3) (initEquipoC "CPU" (- M (- E 1)) (modulo seed N) M))
+                                      (escena N M "PLAYING" 0 (initEquipoJ "Jugador" 3 (modulo seed N) 3) (initEquipoC "CPU" (- M (- E 1)) (modulo seed N) M))
                                       null
                                       )
   )
@@ -244,6 +244,28 @@
                              )
   )
 
+;; Funcion que calcula cuantos personajes muertos hay en un equipo
+;; Dominio: lista de personajes
+;; Recorrido: entero
+;; Recursion: natural, implementacion sencilla y requiere menos parametros
+(define (cuantosMuertos eq) (
+                             if(empty? eq)
+                               0
+                               (if (= (getVidapersonaje (car eq)) 0)
+                                   (+ 1 (cuantosMuertos (cdr eq)))
+                                   (+ 0 (cuantosMuertos (cdr eq)))
+                                   )
+                               )
+  )
+
+;; Funcion que determina el ptje de una partida a partir de dos listas de personajes
+;; Dominio: lista de personajes X lista de personajes
+;; Recorrido: entero
+(define (checkScore eq1 eq2) (
+                              - (cuantosMuertos eq1) (cuantosMuertos eq2)
+                              )
+  )
+
 ;; Función que determina el estado de juego con dos equipos dados
 ;; Dominio:equipo X equipo
 ;; Recorrido: string
@@ -283,9 +305,9 @@
                                                                                    lambda (seed) (
                                                                                                   if(and (escena? scene) (number? member) (> member -1) (number? move) (number? angle) (number? seed))
                                                                                                     (escena
-                                                                                                     (getNescena scene)
-                                                                                                     (getMescena scene)
-                                                                                                     (checkState (equipo (getFlequipo (getEq1escena scene))
+                                                                                                     (getNescena scene) ;; Heredamos las dimensiones de la escena de entrada
+                                                                                                     (getMescena scene) 
+                                                                                                     (checkState (equipo (getFlequipo (getEq1escena scene)) ;; Generamos el estado de juego verificando las listas de personajes resultantes
                                                                                                                                       (chocarProyectil
                                                                                                                                        (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq2escena scene)))) (getMescena scene))
                                                                                                                                        (moveP (getPequipo (getEq1escena scene)) member move)
@@ -294,7 +316,7 @@
                                                                                                                                        )
                                                                                                                                       )
                                                                                                                          
-                                                                                                                 (equipo (getFlequipo (getEq2escena scene))
+                                                                                                                 (equipo (getFlequipo (getEq2escena scene)) 
                                                                                                                          (chocarProyectil
                                                                                                                           (tf angle (+ (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) move) (getYpersonaje (nth member (getPequipo (getEq1escena scene)))) (getMescena scene))
                                                                                                                           (getPequipo (getEq2escena scene))
@@ -303,19 +325,32 @@
                                                                                                                           )   
                                                                                                                          )
                                                                                                                  )
+                                                                                                     (checkScore (chocarProyectil
+                                                                                                                          (tf angle (+ (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) move) (getYpersonaje (nth member (getPequipo (getEq1escena scene)))) (getMescena scene))
+                                                                                                                          (getPequipo (getEq2escena scene))
+                                                                                                                          (+ (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) move)
+                                                                                                                          angle
+                                                                                                                          )
+                                                                                                                 (chocarProyectil
+                                                                                                                                       (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq2escena scene)))) (getMescena scene))
+                                                                                                                                       (moveP (getPequipo (getEq1escena scene)) member move)
+                                                                                                                                       (quienDispara (getPequipo (getEq2escena scene)))
+                                                                                                                                       (modulo seed 360)
+                                                                                                                                       )
+                                                                                                                 )
                                                                                                                  
-                                                                                                     (equipo
+                                                                                                     (equipo ;; Definimos el primer equipo con el flag del mismo de la escena de entrada
                                                                                                       (getFlequipo (getEq1escena scene))
-                                                                                                      (chocarProyectil
+                                                                                                      (chocarProyectil  ;; Definimos la lista de personajes como la lista resultante de intersectar el disparo enemigo con la lista del jugador con el miembro desplazado
                                                                                                        (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq2escena scene)))) (getMescena scene))
                                                                                                        (moveP (getPequipo (getEq1escena scene)) member move)
                                                                                                        (quienDispara (getPequipo (getEq2escena scene)))
                                                                                                        (modulo seed 360)
                                                                                                        )
                                                                                                       )
-                                                                                                     (equipo
-                                                                                                      (getFlequipo (getEq2escena scene))
-                                                                                                      (chocarProyectil
+                                                                                                     (equipo  ;; Lo mismo para el equipo CPU,
+                                                                                                      (getFlequipo (getEq2escena scene)) ;; Heredamos flag 
+                                                                                                      (chocarProyectil ;; Definimos la lista de personajes como la interseccion del disparo del jugador desde la nueva posicion con la lista de personajes enemigos
                                                                                                        (tf angle (+ (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) move) (getYpersonaje (nth member (getPequipo (getEq1escena scene)))) (getMescena scene))
                                                                                                        (getPequipo (getEq2escena scene))
                                                                                                        (+ (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) move)
@@ -333,7 +368,8 @@
   )
   
 
-(define S1 '(10 10 "PLAYING" ("Jugador" (3 1 1) (2 1 1) (1 1 1)) ("CPU" (10 1 1))))
+(define S1 (createScene 10 10 1 4 1231238))
+((((((play S1) 2) 3) shoot1) 20) 21390123)
                                                                                
 
 
