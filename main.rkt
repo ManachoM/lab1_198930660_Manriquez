@@ -25,11 +25,10 @@
 ;; Recursion: natural o lineal, intuitiva, facil de implementar
 (define (initListaP1 cant fila col) (
                                        if(= cant 1)
-                                         (cons (personaje cant col 1) null)
-                                         (cons (personaje col fila 1) (initListaP1 (- cant 1)  (- col 1) fila))
+                                         (cons (personaje cant fila 1) null)
+                                         (cons (personaje col fila 1) (initListaP1 (- cant 1)  fila (- col 1)))
                                          )
   )
-
 
 ;; Funcion que inicializa lista de equipo del jugador para el desarrollo de una partida
 ;; Dominio: string X entero X entero X entero
@@ -64,12 +63,12 @@
 ;; Dominio: entero X entero X entero X entero X entero
 ;; Recorrido: escena
 (define (createScene N M E D seed) (
-                                    if(and (number? N) (> N 0) (number? M) (> M 0) (number? E) (> E 0) (number? D) (> D 0) (number? seed) (> seed 0) (>= N seed))
+                                    if(and (number? N) (> N 0) (number? M) (> M 0) (number? E) (> E 0) (number? D) (> D 0) (number? seed) (> seed 0)) ;(>= N seed);)
                                       (escena N M "PLAYING" (initEquipoJ "Jugador" 3 (modulo seed N) 3) (initEquipoC "CPU" (- M (- E 1)) (modulo seed N) M))
                                       null
                                       )
   )
-
+(createScene 10 10 1 4 1001)
 ;; Funcion que agrega un elemento al final de una lista
 ;; Dominio: elemento X lista
 ;; Recorrido: lista
@@ -192,7 +191,7 @@
 ;; Recorrido: lista de personajes
 (define (chocarProyectil tr eq x angle) (define (aux1 member tr x angle) (
                                                                           cond [(or (< (quotient angle 45) 2) (= (quotient angle 45) 8)) (if(and (> (- (getXpersonaje member) x) -1) (< (- (getXpersonaje member) x) (length tr)))
-                                                                                                 (if(= (nth (- (getXpersonaje member) x) tr) (getYpersonaje member))
+                                                                                                 (if(and (= (nth (- (getXpersonaje member) x) tr) (getYpersonaje member)) (= (getVidapersonaje member) 1))
                                                                                                   #t
                                                                                                   #f
                                                                                               )
@@ -221,7 +220,7 @@
                                     (
                                      if(empty? tr)
                                        eq
-                                       (if(> (aux2 tr eq x 0 angle) -1)
+                                       (if(and (> (aux2 tr eq x 0 angle) -1) (> x -1))
                                           (hitP1 eq (aux2 tr eq x 0 angle))
                                           eq
                                           )
@@ -256,6 +255,21 @@
                                    )
   )
 
+;; Funcion que determina posicion de disparo enemigo
+;; Dominio: lista de personajes
+;; Recorrido: entero
+;; Recursion: de cola, no es necesario dejar estados pendientes
+(define (quienDispara eq) (
+                          if(null? eq)
+                            -1
+                            (if(= (getVidapersonaje (car eq)) 1)
+                               (getXpersonaje (car eq))
+                               (quienDispara (cdr eq))
+                               )
+                            )
+  )
+                             
+
 
 ;; Funcion que permite realizar una jugada, que consiste en mover un miembro del equipo, setear un angulo y disparar
 ;; Luego, el computador dispara de vuelta y se verifica el estado de la partida
@@ -264,11 +278,60 @@
 (define (play scene) (
                       lambda (member) (
                                        lambda (move) (
-                                                      lambda (move) (
-                                                                     lambda (tf) (
-                                                                                  lambda (angle) (
-                                                                                                  lambda (seed) (
-                                                                                                                 #T))))))))
+                                                      lambda (tf) (
+                                                                   lambda (angle) (
+                                                                                   lambda (seed) (
+                                                                                                  if(and (escena? scene) (number? member) (> member -1) (number? move) (number? angle) (number? seed))
+                                                                                                    (escena
+                                                                                                     (getNescena scene)
+                                                                                                     (getMescena scene)
+                                                                                                     (checkState (equipo (getFlequipo (getEq1escena scene))
+                                                                                                                                      (chocarProyectil
+                                                                                                                                       (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq2escena scene)))) (getMescena scene))
+                                                                                                                                       (moveP (getPequipo (getEq1escena scene)) member move)
+                                                                                                                                       (quienDispara (getPequipo (getEq2escena scene)))
+                                                                                                                                       (modulo seed 360)
+                                                                                                                                       )
+                                                                                                                                      )
+                                                                                                                         
+                                                                                                                 (equipo (getFlequipo (getEq2escena scene))
+                                                                                                                         (chocarProyectil
+                                                                                                                          (tf angle (+ (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) move) (getYpersonaje (nth member (getPequipo (getEq1escena scene)))) (getMescena scene))
+                                                                                                                          (getPequipo (getEq2escena scene))
+                                                                                                                          (getXpersonaje (nth member (getPequipo (getEq1escena scene))))
+                                                                                                                          angle
+                                                                                                                          )   
+                                                                                                                         )
+                                                                                                                 )
+                                                                                                                 
+                                                                                                     (equipo
+                                                                                                      (getFlequipo (getEq1escena scene))
+                                                                                                      (chocarProyectil
+                                                                                                       (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq2escena scene)))) (getMescena scene))
+                                                                                                       (moveP (getPequipo (getEq1escena scene)) member move)
+                                                                                                       (quienDispara (getPequipo (getEq2escena scene)))
+                                                                                                       (modulo seed 360)
+                                                                                                       )
+                                                                                                      )
+                                                                                                     (equipo
+                                                                                                      (getFlequipo (getEq2escena scene))
+                                                                                                      (chocarProyectil
+                                                                                                       (tf angle (+ (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) move) (getYpersonaje (nth member (getPequipo (getEq1escena scene)))) (getMescena scene))
+                                                                                                       (getPequipo (getEq2escena scene))
+                                                                                                       (+ (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) move)
+                                                                                                       angle
+                                                                                                       )
+                                                                                                      )
+                                                                                                     )
+                                                                                                    scene
+                                                                                                    )
+                                                                                    )
+                                                                    )
+                                                       )
+                                        )
+                       )
+  )
+  
                                                                                                              
                                                                                
 
