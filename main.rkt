@@ -68,7 +68,8 @@
                                       null
                                       )
   )
-(createScene 10 10 1 4 1001)
+;(createScene 10 10 1 4 1001)
+
 ;; Funcion que agrega un elemento al final de una lista
 ;; Dominio: elemento X lista
 ;; Recorrido: lista
@@ -367,6 +368,16 @@
                        )
   )
   
+
+;; Funcion que retorna un string de las dimensiones, el estado y el puntaje de un escenario
+;; Dominio: escena
+;; Recorrido: string
+(define (headerStr scene) (
+                           if(escena? scene)
+                             (string-append "Filas: " (number->string (getNescena scene)) "\n" "Columnas: " (number->string (getMescena scene)) "\n" "Estado: " (getEstescena scene) "\n" "Puntaje: " (number->string (getPtjescena scene)) "\n")
+                             ""
+                             )
+  )
 
 (define S1 (createScene 10 10 1 4 1231238))
 ((((((play S1) 2) 3) shoot1) 20) 21390123)
