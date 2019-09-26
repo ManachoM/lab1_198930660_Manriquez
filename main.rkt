@@ -16,7 +16,10 @@
     (error "Index out of bounds.")
     (if (eq? n 0)
       (car l)
-      (nth (- n 1) (cdr l)))))
+      (nth (- n 1) (cdr l))
+      )
+    )
+  )
 
 
 ;; Funcion que inicializa lista de personajes del jugador para el desarrollo de una partida
@@ -309,7 +312,7 @@
                                                                                                      (getNescena scene) ;; Heredamos las dimensiones de la escena de entrada
                                                                                                      (getMescena scene) 
                                                                                                      (checkState (equipo (getFlequipo (getEq1escena scene)) ;; Generamos el estado de juego verificando las listas de personajes resultantes
-                                                                                                                                      (chocarProyectil
+                                                                                                                                       (chocarProyectil
                                                                                                                                        (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq2escena scene)))) (getMescena scene))
                                                                                                                                        (moveP (getPequipo (getEq1escena scene)) member move)
                                                                                                                                        (quienDispara (getPequipo (getEq2escena scene)))
@@ -379,7 +382,74 @@
                              )
   )
 
-(define S1 (createScene 10 10 1 4 1231238))
+;; Funcion que verifica que si existe un personaje en un punto
+;; Dominio: entero X entero X lista de personajes
+;; Recorrido: boolean
+;; Recursion: de cola, no es necesario dejar estados pendientes y es fácil de implementar
+(define (estaPersonaje x y eq) (
+                                if(or (empty? eq) (<= 0 x) (<= 0 y))
+                                  #f
+                                  (if(and (= x (getXpersonaje (car eq))) (= y (getYpersonaje (car eq))) (> (getVidapersonaje (car eq)) 0))
+                                     #t
+                                     (estaPersonaje x y (cdr eq))
+                                     )
+                                  )
+  )
+
+;; Funcion que verifica si existe un proyectil en un punto
+;; Domimio: entero X entero X lista con proyectil
+;; Recorrido: boolean
+;; Recursión: de cola, no es necesario dejar estados pendientes
+(define (estaProy x y l) (
+                          if(or (empty? l) (<= 0 x) (<= 0 y))
+                            #f
+                            (if (and (= x (car l)) (= y (cdr l)))
+                                #t
+                                #f
+                                )
+                            )
+  )
+
+;; Función que determina qué símbolo va en un punto
+;; Dominio: entero X entero X lista con proyectil X lista con personajes X lista con personajes
+;; Recorrido: string
+(define (queLetra x y l eq1 eq2) (
+                                  cond [(and (estaProy x y l) (not (estaPersonaje x y eq1)) (not (estaPersonaje x y eq2))) "*"]
+                                       [(and (estaProy x y l) (or (estaPersonaje x y eq1) (estaPersonaje x y eq2))) "X"]
+                                       [(and (not (estaProy x y l)) (estaPersonaje x y eq1) (not (estaPersonaje x y eq2))) "P"]
+                                       [(and (not (estaProy x y l)) (not (estaPersonaje x y eq1)) (estaPersonaje x y eq2)) "E"]
+                                       [else " "]
+                                       )
+  )
+                                       
+;; Funcion que genera string con suelo
+;; Dominio: escena X entero
+;; Recorrido: string
+(define (getSuelo scene i) (
+                            if(= i (getYpersonaje (car (getPequipo (getEq1escena scene)))))
+                              (string-append (make-string (getMescena scene) #\-) "\n")
+                              ""
+                              )
+  )
+
+
+
+;; Funcion que transforma el tablero de juego a un string
+;; Dominio: escena X entero X entero
+;; Recorrido: string
+(define (bodyStr scene i j) (
+                             if(or (< (getNescena scene) i) (< (getMescena scene) j))
+                               ""
+                               (if(= (remainder j (getMescena scene)) 0)
+                                  (string-append (queLetra j i (last scene) (getPequipo (getEq1escena scene)) (getPequipo (getEq2escena scene))) " \n" (getSuelo scene i) (bodyStr scene (+ i 1) 1))
+                                  (string-append (queLetra j i (last scene) (getPequipo (getEq1escena scene)) (getPequipo (getEq2escena scene))) (bodyStr scene i (+ j 1)))
+                                  )
+                               )
+  )
+
+
+(define S1 (list 10 10 "VICTORY" 1 (list "Jugador" (list (personaje 3 8 1) (personaje 2 8 1) (personaje 4 8 1))) (list "CPU" (list (personaje 10 8 0))) null))
+(bodyStr S1 1 1)
 ((((((play S1) 2) 3) shoot1) 20) 21390123)
                                                                                
 
