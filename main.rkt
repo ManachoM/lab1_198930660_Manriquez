@@ -71,7 +71,7 @@
                                       null
                                       )
   )
-;(createScene 10 10 1 4 1001)
+;;(createScene 10 10 1 4 1001)
 
 ;; Funcion que agrega un elemento al final de una lista
 ;; Dominio: elemento X lista
@@ -387,7 +387,7 @@
 ;; Recorrido: boolean
 ;; Recursion: de cola, no es necesario dejar estados pendientes y es fácil de implementar
 (define (estaPersonaje x y eq) (
-                                if(or (empty? eq) (<= 0 x) (<= 0 y))
+                                if(or (empty? eq) (<= x 0) (<= y 0))
                                   #f
                                   (if(and (= x (getXpersonaje (car eq))) (= y (getYpersonaje (car eq))) (> (getVidapersonaje (car eq)) 0))
                                      #t
@@ -401,7 +401,7 @@
 ;; Recorrido: boolean
 ;; Recursión: de cola, no es necesario dejar estados pendientes
 (define (estaProy x y l) (
-                          if(or (empty? l) (<= 0 x) (<= 0 y))
+                          if(or (empty? l) (<= x 0) (<= y 0))
                             #f
                             (if (and (= x (car l)) (= y (cdr l)))
                                 #t
@@ -427,7 +427,7 @@
 ;; Recorrido: string
 (define (getSuelo scene i) (
                             if(= i (getYpersonaje (car (getPequipo (getEq1escena scene)))))
-                              (string-append (make-string (getMescena scene) #\-) "\n")
+                              (string-append (make-string (* 2 (getMescena scene)) #\-) "\n")
                               ""
                               )
   )
@@ -442,14 +442,27 @@
                                ""
                                (if(= (remainder j (getMescena scene)) 0)
                                   (string-append (queLetra j i (last scene) (getPequipo (getEq1escena scene)) (getPequipo (getEq2escena scene))) " \n" (getSuelo scene i) (bodyStr scene (+ i 1) 1))
-                                  (string-append (queLetra j i (last scene) (getPequipo (getEq1escena scene)) (getPequipo (getEq2escena scene))) (bodyStr scene i (+ j 1)))
+                                  (string-append (queLetra j i (last scene) (getPequipo (getEq1escena scene)) (getPequipo (getEq2escena scene))) " " (bodyStr scene i (+ j 1)))
                                   )
                                )
   )
 
+;; Funcion que convierte un escenario a un string
+;; Dominio: escena
+;; Recorrido: string
+;; Recursion: de cola, esta en funciones auxiliares
+(define (scene->string scene) (
+                               if(escena? scene)
+                                 (string-append (headerStr scene) (make-string (* 2(getMescena scene)) #\#) (bodyStr scene 1 1) (make-string (* 2(getMescena scene)) #\#) "\n")
+                                 ""
+                                 )
+  )
 
-(define S1 (list 10 10 "VICTORY" 1 (list "Jugador" (list (personaje 3 8 1) (personaje 2 8 1) (personaje 4 8 1))) (list "CPU" (list (personaje 10 8 0))) null))
-(bodyStr S1 1 1)
+;;(define S1 (createScene 10 10 2 4 7))
+(define S1 '(10 10 "PLAYING" 1 ("Jugador" ((3 7 1) (2 7 1) (4 7 1))) ("CPU" ((9 7 0) (10 7 1))) (3 . 4)))
+
+;;(display (bodyStr S1 1 1))
+(display (scene->string S1))
 ((((((play S1) 2) 3) shoot1) 20) 21390123)
                                                                                
 

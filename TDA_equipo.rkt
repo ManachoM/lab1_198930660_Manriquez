@@ -8,7 +8,7 @@
 ;; Dominio: str X personajes
 ;; Recorrido: equipo
 (define (equipo flag p) (
-                      cons flag p
+                      cons flag (cons p null)
                            )
   )
 
@@ -16,7 +16,7 @@
 ;; Dominio: cualquier cosa
 ;; Recorrido: boolean
 (define (equipo? eq) (
-                     if(and (string? (car eq)) (sonPersonaje (cdr eq)))
+                     if(and (string? (car eq)) (sonPersonaje (cadr eq)))
                        #t
                        #f
                        )
@@ -37,7 +37,7 @@
 ;; Recorrido: lista de personajes
 (define (getPequipo p) (
                         if(equipo? p)
-                          (cdr p)
+                          (cadr p)
                           null
                           )
   )
