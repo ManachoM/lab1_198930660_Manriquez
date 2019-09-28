@@ -458,10 +458,40 @@
                                  )
   )
 
-;;(define S1 (createScene 10 10 2 4 7))
-(define S1 '(10 10 "PLAYING" 1 ("Jugador" ((3 7 1) (2 7 1) (4 7 1))) ("CPU" ((9 7 0) (10 7 1))) (3 . 4)))
+;; Funcion que convierte un escenario a una representacion en Json
+;; Dominio: escena
+;; Recorrido: string
+;; Recursividad: natural o lineal, implementacion intuitiva
+(define (scene->json scene) (define (getPJson p) ( ;; Funcion que retorna string con formato Json de personaje
+                                                  if(personaje? p)
+                                                    (string-append "\n\t\t{" "\n\t\t\t" "\"X\"" ": " (number->string (getXpersonaje p)) ",\n\t\t\t" "\"Y\"" ": " (number->string (getYpersonaje p)) ",\n\t\t\t" "\"Vida\"" ": " (number->string (getVidapersonaje p)) "\n\t\t}")
+                                                    ""
+                                                    )
+                              )
+  (define (getLPJson l) ( ;; Funcion que retorna string con formato Json de lista de personaejs
+                         if(null? (cdr l))
+                           (getPJson (car l))
+                           (string-append (getPJson (car l)) ",\n" (getLPJson (cdr l)))
+                           )
+    )
+  (
+   if(escena? scene)
+     (string-append "{\n\t" "\"Filas\"" ": " (number->string (getNescena scene)) ",\n\t" "\"Columnas\"" ": " (number->string (getMescena scene)) ",\n\t" "\"Estado\"" ": " "\"" (getEstescena scene) "\"" ",\n\t" "\"Puntaje\"" ": " (number->string (getPtjescena scene))
+                    ",\n\t" "\"" (getFlequipo (getEq1escena scene)) "\"" ": [" (getLPJson (getPequipo (getEq1escena scene))) "\n\t]"  ",\n\t" "\"" (getFlequipo (getEq2escena scene)) "\"" ": [" (getLPJson (getPequipo (getEq2escena scene))) "\n\t]"
+                    (if (and (pair? (last scene)) (not (empty? (last scene))))
+                        (string-append ",\n\t" "\"Proyectil\"" ": [ "  "\"X\"" ": " (number->string (car (last scene))) ", " "\"Y\"" ": " (number->string (cdr (last scene))) "]")
+                        "")
+                    "\n}")
+                               ""
+                               )
+  )
+
+(define S1 (createScene 10 10 2 4 7))
+;;(define S1 '(10 10 "PLAYING" 1 ("Jugador" ((3 7 1) (2 7 1) (4 7 1))) ("CPU" ((9 7 0) (10 7 1))) (list )))
 
 ;;(display (bodyStr S1 1 1))
+
+
 (display (scene->string S1))
 ((((((play S1) 2) 3) shoot1) 20) 21390123)
                                                                                
