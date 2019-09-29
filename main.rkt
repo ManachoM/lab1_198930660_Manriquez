@@ -461,21 +461,21 @@
 ;; Funcion que convierte un escenario a una representacion en Json
 ;; Dominio: escena
 ;; Recorrido: string
-;; Recursividad: natural o lineal, implementacion intuitiva
+;; Recursion: natural o lineal, implementacion intuitiva
 (define (scene->json scene) (define (getPJson p) ( ;; Funcion que retorna string con formato Json de personaje
                                                   if(personaje? p)
                                                     (string-append "\n\t\t{" "\n\t\t\t" "\"X\"" ": " (number->string (getXpersonaje p)) ",\n\t\t\t" "\"Y\"" ": " (number->string (getYpersonaje p)) ",\n\t\t\t" "\"Vida\"" ": " (number->string (getVidapersonaje p)) "\n\t\t}")
                                                     ""
                                                     )
                               )
-  (define (getLPJson l) ( ;; Funcion que retorna string con formato Json de lista de personaejs
+  (define (getLPJson l) ( ;; Funcion que retorna string con formato Json de lista de personajes, recursiva lineal
                          if(null? (cdr l))
                            (getPJson (car l))
                            (string-append (getPJson (car l)) ",\n" (getLPJson (cdr l)))
                            )
     )
   (
-   if(escena? scene)
+   if(escena? scene) ;; Aqui comienza procedimiento de scene->json
      (string-append "{\n\t" "\"Filas\"" ": " (number->string (getNescena scene)) ",\n\t" "\"Columnas\"" ": " (number->string (getMescena scene)) ",\n\t" "\"Estado\"" ": " "\"" (getEstescena scene) "\"" ",\n\t" "\"Puntaje\"" ": " (number->string (getPtjescena scene))
                     ",\n\t" "\"" (getFlequipo (getEq1escena scene)) "\"" ": [" (getLPJson (getPequipo (getEq1escena scene))) "\n\t]"  ",\n\t" "\"" (getFlequipo (getEq2escena scene)) "\"" ": [" (getLPJson (getPequipo (getEq2escena scene))) "\n\t]"
                     (if (and (pair? (last scene)) (not (empty? (last scene))))
@@ -486,6 +486,34 @@
                                )
   )
 
+;; Funciom que convierte un escenario a una representacion en formato Xml
+;; Dominio: escena
+;; Recorrido: string
+;; Recursion: natural, implementacion similar a funcion scene->json
+(define (scene->xml scene) (define (perXml p) (if (personaje? p) ;; Funcion que entrega representacion de personaje en Xml
+                                                  (string-append "\n\t\t\t<p>\n\t\t\t\t<x>" (number->string (getXpersonaje p)) "</x>\n\t\t\t\t<y>" (number->string (getYpersonaje p)) "</y>\n\t\t\t\t<vida>" (number->string (getVidapersonaje p)) "</vida>\n\t\t\t</p>")
+                                                  "")
+                             ) (define (listPerXml l) (if (sonPersonaje l) ;; Funcion que entrega representacion de lista de personajes en Xml, recursiva lineal
+                                                          (if (null? (cdr l))
+                                                              (string-append (perXml (car l)))
+                                                              (string-append (perXml (car l)) (listPerXml (cdr l)))
+                                                              )
+                                                          ""
+                                                          )
+                                 )
+  (if (escena? scene) ;; Aqui comienza el procedimiento de scene->xml
+      (string-append "<escena>" "\n\t<N>" (number->string (getNescena scene)) "</N>\n\t<M>" (number->string (getMescena scene)) "</M>\n\t<Estado>" (getEstescena scene) "</Estado>\n\t<Puntaje>" (number->string (getPtjescena scene)) "</Puntaje>\n\t<Equipo1>\n\t\t<flag>"
+                     (getFlequipo (getEq1escena scene)) "</flag>\n\t\t<ListaPersonajes>" (listPerXml (getPequipo (getEq1escena scene))) "\n\t\t</ListaPersonajes>\n\t</Equipo1>\n\t<Equipo2>\n\t\t<flag>" (getFlequipo (getEq2escena scene)) "</flag>\n\t\t<ListaPersonajes>" (listPerXml (getPequipo (getEq2escena scene))) "\n\t\t</ListaPersonajes>\n\t</Equipo2>"
+                     (if(null? (last scene)) "" (string-append "\n\t<Proyectil>\n\t\t<x>" (number->string (car (last scene))) "</x>\n\t\t<y>" (number->string (cdr (last scene))) "</y>\n\t</Proyectil>"))"\n</escena>")
+      ""
+      )
+  )
+                                 
+  
+  
+
+
+
 (define S1 (createScene 10 10 2 4 7))
 ;;(define S1 '(10 10 "PLAYING" 1 ("Jugador" ((3 7 1) (2 7 1) (4 7 1))) ("CPU" ((9 7 0) (10 7 1))) (list )))
 
@@ -493,6 +521,11 @@
 
 
 (display (scene->string S1))
+(display "\n\n")
+(display (scene->json S1))
+(display "\n\n")
+(display (scene->xml S1))
+(display "\n\n")
 ((((((play S1) 2) 3) shoot1) 20) 21390123)
                                                                                
 
