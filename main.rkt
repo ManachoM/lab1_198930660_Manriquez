@@ -191,7 +191,7 @@
   )
 
 ;; Funcion que determina si un personaje esta en el camino de la trayectoria
-;; Dominio: lista de enteros X lista de personajes X entero
+;; Dominio: lista de enteros X lista de personajes X entero X entero
 ;; Recorrido: lista de personajes
 (define (chocarProyectil tr eq x angle) (define (aux1 member tr x angle) (
                                                                           cond [(or (< (quotient angle 45) 2) (= (quotient angle 45) 8)) (if(and (> (- (getXpersonaje member) x) -1) (< (- (getXpersonaje member) x) (length tr)))
@@ -441,7 +441,7 @@
                              if(or (< (getNescena scene) i) (< (getMescena scene) j))
                                ""
                                (if(= (remainder j (getMescena scene)) 0)
-                                  (string-append (queLetra j i (last scene) (getPequipo (getEq1escena scene)) (getPequipo (getEq2escena scene))) " \n" (getSuelo scene i) (bodyStr scene (+ i 1) 1))
+                                  (string-append (queLetra j i (last scene) (getPequipo (getEq1escena scene)) (getPequipo (getEq2escena scene))) "\n" (getSuelo scene i) (bodyStr scene (+ i 1) 1))
                                   (string-append (queLetra j i (last scene) (getPequipo (getEq1escena scene)) (getPequipo (getEq2escena scene))) " " (bodyStr scene i (+ j 1)))
                                   )
                                )
@@ -508,9 +508,53 @@
       ""
       )
   )
-                                 
+
+;; Funcion que retorna estado de partida, implementada con playLazy en mente
+;; Dominio: escena X entero X entero X funcion X entero X entero X entero
+;; Recorrido: string
+(define (checkStateLazy scene member move tf t angle seed) (
+                                                       cond [(and (>= t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))
+                                                                  (>= t (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))
+                                                             (checkState (getEq1escena scene) (getEq2escena scene))]
+                                                            [(and (>= t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))
+                                                                  (not (>= t (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))) 
+                                                             (checkState (equipo (getFlequipo (getEq1escena scene)) (chocarTrayectoria (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq1escena scene)) (quienDispara (getPequipo (getEq2escena scene))) (modulo seed 360))) (getEq2escena escena))]
+                                                             [(and (>= t 0) (< t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))
+                                                              (checkState (getEq1escena scene) (equipo (getFlequipo (getEq2escena scene)) (chocarTrayectoria (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq2escena scene)) (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) angle)))]
+                                                           )
+  )
+                                                             
+;; Funcion que calcula puntaje de partida, implementado para playLazy
+;; Dominio: escena X entero X entero X funcion X entero X entero X entero
+;; Recorrido: entero
+(define (checkScoreLazy scene member move tf t angle seed) (
+                                                            cond [(and (>= t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))
+                                                                       (>= t (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))
+                                                                  (checkScore (getPequipo (getEq2escena scene)) (getPequipo (getEq1escena scene)))]
+                                                                 [(and (>= t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))
+                                                                       (not (>= t (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))))
+                                                                  (checkScore (chocarTrayectoria (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq1escena scene)) (quienDispara (getPequipo (getEq2escena scene))) (modulo seed 360)) (getPequipo (getEq2escena)))]
+                                                                 [(and (>= t 0) (< t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))
+                                                                  (checkScore (getPequipo (getEq1escena scene)) (chocarTrayectoria (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq2escena scene)) (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) angle))]
+                                                                 )
+  )
+                                                            
+
+;; Funcion que entrega una lista infinita con actualizaciones de un escenario a lo largo de una jugada
+;; Dominio: escena X entero X entero X funcion X entero X entero X entero
+;; Recursion: natural, propio de la mayoria de las listas infinitas
+(define (playLazy scene member move tf t angle seed) (
+                                                      if(escena? scene?)
+                                                        (cons (
+                                                               escena (getNescena scene)
+                                                                      (getMescena scene)
+                                                                      (checkStateLazy scene member move tf t angle seed)
+                                                                      (checkScoreLazy scene member move tf t angle seed)
+                                                                      
   
-  
+
+
+
 
 
 
