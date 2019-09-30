@@ -67,7 +67,7 @@
 ;; Recorrido: escena
 (define (createScene N M E D seed) (
                                     if(and (number? N) (> N 0) (number? M) (> M 0) (number? E) (> E 0) (number? D) (> D 0) (number? seed) (> seed 0)) ;(>= N seed);)
-                                      (escena N M "PLAYING" 0 (initEquipoJ "Jugador" 3 (modulo seed N) 3) (initEquipoC "CPU" (- M (- E 1)) (modulo seed N) M))
+                                      (escena N M "PLAYING" 0 (initEquipoJ "Jugador" 3 (modulo seed N) 3) (initEquipoC "CPU" (- M (- E 1)) (modulo seed N) M) '())
                                       null
                                       )
   )
@@ -361,6 +361,7 @@
                                                                                                        angle
                                                                                                        )
                                                                                                       )
+                                                                                                     '()
                                                                                                      )
                                                                                                     scene
                                                                                                     )
@@ -513,14 +514,13 @@
 ;; Dominio: escena X entero X entero X funcion X entero X entero X entero
 ;; Recorrido: string
 (define (checkStateLazy scene member move tf t angle seed) (
-                                                       cond [(and (>= t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))
-                                                                  (>= t (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))
+                                                       cond [(and (>= t (+ (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))) (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))))
                                                              (checkState (getEq1escena scene) (getEq2escena scene))]
                                                             [(and (>= t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))
-                                                                  (not (>= t (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))) 
-                                                             (checkState (equipo (getFlequipo (getEq1escena scene)) (chocarTrayectoria (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq1escena scene)) (quienDispara (getPequipo (getEq2escena scene))) (modulo seed 360))) (getEq2escena escena))]
+                                                                  (not (>= t (+ length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))) (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))) 
+                                                             (checkState (equipo (getFlequipo (getEq1escena scene)) (chocarProyectil (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq1escena scene)) (quienDispara (getPequipo (getEq2escena scene))) (modulo seed 360))) (getEq2escena escena))]
                                                              [(and (>= t 0) (< t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))
-                                                              (checkState (getEq1escena scene) (equipo (getFlequipo (getEq2escena scene)) (chocarTrayectoria (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq2escena scene)) (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) angle)))]
+                                                              (checkState (getEq1escena scene) (equipo (getFlequipo (getEq2escena scene)) (chocarProyectil (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq2escena scene)) (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) angle)))]
                                                            )
   )
                                                              
@@ -529,27 +529,79 @@
 ;; Recorrido: entero
 (define (checkScoreLazy scene member move tf t angle seed) (
                                                             cond [(and (>= t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))
-                                                                       (>= t (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))
-                                                                  (checkScore (getPequipo (getEq2escena scene)) (getPequipo (getEq1escena scene)))]
+                                                                  (>= t (+ (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))) (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))))
+                                                                  (- (checkScore (getPequipo (getEq2escena scene)) (getPequipo (getEq1escena scene))))]
                                                                  [(and (>= t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))
-                                                                       (not (>= t (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))))
-                                                                  (checkScore (chocarTrayectoria (tf (modulo seed 360) (quienDispara (getPequipo (getEq2 scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq1escena scene)) (quienDispara (getPequipo (getEq2escena scene))) (modulo seed 360)) (getPequipo (getEq2escena)))]
+                                                                  (not (>= t (+ (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))) (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))) 
+                                                                  (- (checkScore (chocarProyectil (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq1escena scene)) (quienDispara (getPequipo (getEq2escena scene))) (modulo seed 360)) (getPequipo (getEq2escena)))))]
                                                                  [(and (>= t 0) (< t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))
-                                                                  (checkScore (getPequipo (getEq1escena scene)) (chocarTrayectoria (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq2escena scene)) (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) angle))]
+                                                                  (- (checkScore (getPequipo (getEq1escena scene)) (chocarProyectil (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq2escena scene)) (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) angle)))]
                                                                  )
   )
                                                             
 
+;; Funcion que determina equipo 1 de un escenario, implementado pensando en su uso dentro de playLazy
+;; Dominio: escena X entero X entero X funcion X entero X entero X entero
+;; Recorrido: equipo1 ajustado a tiempo t
+(define (checkEq1Lazy scene member move tf t angle seed) (
+                                                          cond [(= t 0) (equipo (getFlequipo (getEq1escena scene)) (moveP (getPequipo (getEq1escena scene)) member move))]
+                                                               [(and (>= t 0) (< t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))
+                                                                (getEq1escena scene)]
+                                                               [(and (>= t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))
+                                                                       (not (>= t (+ (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))) (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))))
+                                                                (equipo (getFlequipo (getEq1escena scene))
+                                                                        (if (cond [(> (modulo seed 360) 90) (estaPersonaje (+ (- t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))) (- (quienDispara (getPequipo (getEq2escena scene))) (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))) (nth (- t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))) (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))) (getPequipo (getEq1escena scene)))]
+                                                                                       [(< (modulo seed 360) 90) (estaPersonaje (+ (- t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))) (quienDispara (getPequipo (getEq2escena scene)))) (nth (- t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))) (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq1escena scene))))]
+                                                                                       [else #f])
+                                                                         (chocarProyectil (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq1escena scene)) (quienDispara (getPequipo (getEq2escena scene))) (modulo seed 360))
+                                                                         (getPequipo (getEq1escena scene))))]
+                                                               )
+  )
+
+;; Funcion que determina equipo 2 de un escenario, implementado pensando en playLazy
+;; Dominio: escena X entero X entero X funcion X entero X entero X entero
+;; Recorrido: equipo 2 en tiempo t
+(define (checkEq2Lazy scene member move tf t angle seed) (
+                                                          cond [(and (>= t 0) (< t (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))
+                                                                (if (cond [(> angle 90) (estaPersonaje (+ t (- (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))) (nth (+ t (- (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))) (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))) (getPequipo (getEq2escena scene)))]
+                                                                          [(< angle 90) (estaPersonaje (+ t (getXpersonaje (nth member (getPequipo (getEq1escena scene))))) (nth t (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))) (getPequipo (getEq2escena scene)))]
+                                                                          [else #f])
+                                                                     (equipo (getFlequipo (getEq2escena scene)) (chocarProyectil (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)) (getPequipo (getEq2escena scene)) (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) angle))
+                                                                             (getEq2escena scene))]
+                                                               [else (getEq2escena scene)]
+                                                               )
+  )
+
+
 ;; Funcion que entrega una lista infinita con actualizaciones de un escenario a lo largo de una jugada
 ;; Dominio: escena X entero X entero X funcion X entero X entero X entero
+;; Recorrido: lista infinita con escenas
 ;; Recursion: natural, propio de la mayoria de las listas infinitas
-(define (playLazy scene member move tf t angle seed) (
-                                                      if(escena? scene?)
-                                                        (cons (
-                                                               escena (getNescena scene)
-                                                                      (getMescena scene)
-                                                                      (checkStateLazy scene member move tf t angle seed)
-                                                                      (checkScoreLazy scene member move tf t angle seed)
+(define (playLazy scene member move tf t angle seed) (define (playLazyAux scene member move tf t angle seed cont)(
+                                                                                                                  if(escena? scene)
+                                                                                                                    (cons (
+                                                                                                                           escena (getNescena scene)
+                                                                                                                                  (getMescena scene)
+                                                                                                                                  (checkStateLazy scene member move tf (exact-floor cont) angle seed)
+                                                                                                                                  (checkScoreLazy scene member move tf (exact-floor cont) angle seed)
+                                                                                                                                  (checkEq1Lazy scene member move tf (exact-floor cont) angle seed)
+                                                                                                                                  (checkEq2Lazy scene member move tf (exact-floor cont) angle seed)
+                                                                                                                                  (cond [(and (> cont 0) (< cont (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))
+                                                                                                                                         (cons (exact-floor cont) (nth (exact-floor cont) (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))]
+                                                                                                                                        [(and (> cont (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))) (< cont (+ (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))) (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene))))))
+                                                                                                                                         (cons (+ (exact-floor cont) (quienDispara (getPequipo (getEq2escena scene)))) (nth (- (exact-floor cont) (length (tf angle (getXpersonaje (nth member (getPequipo (getEq1escena scene)))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))) (length (tf (modulo seed 360) (quienDispara (getPequipo (getEq2escena scene))) (getYpersonaje (car (getPequipo (getEq1escena scene)))) (getMescena scene)))))]
+                                                                                                                                        [else '()]
+                                                                                                                                        )
+                                                                                                                                  )
+                                                                                                                          (lazy (playLazyAux scene member move tf t angle seed (+ cont t))))
+                                                                                                                          (cons null (lazy (playLazyAux scene member move tf t angle seed (+ cont t)))))
+                                                                                                                          )
+                                                                                                                    
+                                                                                                                    
+                                                       
+  (
+   playLazyAux scene member move tf t angle seed 0)
+  )
                                                                       
   
 
@@ -563,7 +615,7 @@
 
 ;;(display (bodyStr S1 1 1))
 
-
+(checkEq2Lazy S1 2 3 shoot1 8 20 12312313)
 (display (scene->string S1))
 (display "\n\n")
 (display (scene->json S1))
