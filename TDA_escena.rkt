@@ -9,9 +9,9 @@
 ;; Funcion constructora de escenas
 ;; Dominio: entero X entero X string X entero X equipo X equipo X lista de trayectoria (solo sera usada para playLazy, por lo que estara vacia en cualquier otro caso)
 ;; Recorrido: escena
-(define (escena N M est ptje eq1 eq2) (
+(define (escena N M est ptje eq1 eq2 l) (
                                   if(and (> N 0) (> M 0) (string? est) (equipo? eq1) (equipo? eq2))
-                                    (list N M est ptje eq1 eq2 '())
+                                    (list N M est ptje eq1 eq2 l)
                                     null
                                     )
   )
@@ -85,12 +85,22 @@
                             )
   )
 
+;; Funcion selectora de elemento proyectil (para playLazy)
+;; Dominio: escena
+;; Recorrido: par
+(define (getPescena s) (
+                        if(escena? s)
+                          (last s)
+                          null
+                          )
+  )
+
 ;; Funcion modificadora de alto de escena
 ;; Dominio: escena X entero
 ;; Salida: escena
 (define (setNescena s n) (
                         if(and (escena? s) (number? n) (> n -1))
-                          (escena n (getMescena s) (getPtjescena s) (getEstescena s) (getEq1escena s) (getEq2escena s))
+                          (escena n (getMescena s) (getPtjescena s) (getEstescena s) (getEq1escena s) (getEq2escena s) (getPescena s))
                           s
                           )
   )
@@ -101,7 +111,7 @@
 ;; Recorrido: escena
 (define (setMescena s m) (
                           if(and (escena? s) (number? m) (> m -1))
-                            (escena (getNescena s) m (getPtjescena s) (getEstescena s) (getEq1escena s) (getEq2escena s))
+                            (escena (getNescena s) m (getPtjescena s) (getEstescena s) (getEq1escena s) (getEq2escena s) (getPescena s))
                             s
                             )
   )
@@ -111,7 +121,7 @@
 ;; Recorrido: escena
 (define (setPtjescena s p) (
                             if(and (escena? s) (number? p) (> p -1))
-                              (escena (getNescena s) (getMescena s) p (getEstescena s) (getEq1escena s) (getEq2escena s))
+                              (escena (getNescena s) (getMescena s) p (getEstescena s) (getEq1escena s) (getEq2escena s) (getPescena s))
                               s
                               )
   )
@@ -121,7 +131,7 @@
 ;; Recorrido: escena
 (define (setEstescena s st) (
                              if(and (escena? s) (string? st))
-                               (escena (getNescena s) (getMescena s) (getPtjescena s) st (getEq1escena s) (getEq2escena s))
+                               (escena (getNescena s) (getMescena s) (getPtjescena s) st (getEq1escena s) (getEq2escena s) (getPescena s))
                                s
                                )
   )
@@ -131,7 +141,7 @@
 ;; Recorrido: escena
 (define (setEq1escena s eq) (
                              if(and (escena? s) (equipo? eq))
-                               (escena (getNescena s) (getMescena s) (getPtjescena s) (getEstescena s) eq (getEq2escena s))
+                               (escena (getNescena s) (getMescena s) (getPtjescena s) (getEstescena s) eq (getEq2escena s) (getPescena s))
                                s
                                )
   )
@@ -141,9 +151,19 @@
 ;; Recorrido: escena
 (define (setEq2escena s eq) (
                              if(and (escena? s) (equipo? eq))
-                               (escena (getNescena s) (getMescena s) (getPtjescena s) (getEstescena s) (getEq1escena s) eq)
+                               (escena (getNescena s) (getMescena s) (getPtjescena s) (getEstescena s) (getEq1escena s) eq (getPescena s))
                                s
                                )
+  )
+
+;; Funcion modificadora de par proyectil (solo playLazy)
+;; Dominio: escena X pair
+;; Recorrido: escena
+(define (setPescena s l) (
+                          if(escena? s)
+                            (escena (getNescena s) (getMescena s) (getPtjescena s) (getEstescena s) (getEq1escena s) (getEq2escena s) l)
+                            null
+                            )
   )
 
 (provide escena)
@@ -154,9 +174,11 @@
 (provide getPtjescena)
 (provide getEq1escena)
 (provide getEq2escena)
+(provide getPescena)
 (provide setNescena)
 (provide setMescena)
 (provide setEstescena)
 (provide setPtjescena)
 (provide setEq1escena)
 (provide setEq2escena)
+(provide setPescena)
